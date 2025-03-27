@@ -64,7 +64,7 @@ const groupByTime = <T extends { lastModified: number }>(
   const ms = minute * 60 * 1000;
 
   return item
-    .sort((a, b) => b.lastModified - a.lastModified)
+    .sort((a, b) => a.lastModified - b.lastModified)
     .reduce((acc: T[][], file) => {
       if (acc.length === 0) return [[file]];
 

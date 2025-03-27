@@ -1,32 +1,34 @@
-'use client'
-import { useState, useCallback } from "react";
-import { useAtom, useSetAtom } from "jotai";
-import { ImagePreview } from "./ImagePreview";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { imageItemsAtom, selectedImagesAtom, addImageItemAtom, updateImageItemAtom } from "./atom";
-import { uploadMultipleToGyazo } from "./gyazo";
+'use client';
+import { useState, useCallback } from 'react';
+import { useAtom, useSetAtom } from 'jotai';
+import { ImagePreview } from './ImagePreview';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { itemsAtom, addItemAtom, updateItemAtom } from '../features/item/atom';
+import { uploadMultipleToGyazo } from './gyazo';
+import { selectedIndexAtom } from '@/features/item/select';
 
 export const ImageViewer = () => {
-  const [files] = useAtom(imageItemsAtom);
-  const [selectedFiles] = useAtom(selectedImagesAtom);
+  const [files] = useAtom(itemsAtom);
+  const [selectedIndexes, setSelectedIndexes] = useAtom(selectedIndexAtom);
   const [uploading, setUploading] = useState(false);
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
-    null
+    null,
   );
-  const addImage = useSetAtom(addImageItemAtom);
-  const updateImage = useSetAtom(updateImageItemAtom);
+  const addImage = useSetAtom(addItemAtom);
+  const updateImage = useSetAtom(updateItemAtom);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
-      newFiles.forEach((file) => {
+      newFiles.forEach(file => {
         const reader = new FileReader();
         reader.onload = () => {
           addImage({
             file,
             previewUrl: reader.result as string,
             index: files.length,
+            gyazoUrl: null,
           });
         };
         reader.readAsDataURL(file);
@@ -38,18 +40,24 @@ export const ImageViewer = () => {
     fileName: string,
     selected: boolean,
     isShiftKey: boolean,
-    index: number
+    index: number,
   ) => {
     if (isShiftKey && lastSelectedIndex !== null) {
       // Range selection
       const start = Math.min(lastSelectedIndex, index);
       const end = Math.max(lastSelectedIndex, index);
+      const newSelectedIndexes = new Set(selectedIndexes);
       for (let i = start; i <= end; i++) {
-        updateImage(i, { selected: true });
+        newSelectedIndexes.add(i);
       }
+      setSelectedIndexes(Array.from(newSelectedIndexes));
     } else {
       // Single selection
-      updateImage(index, { selected });
+      setSelectedIndexes(
+        selected
+          ? [...selectedIndexes, index]
+          : selectedIndexes.filter(i => i !== index),
+      );
     }
     setLastSelectedIndex(index);
   };
@@ -57,35 +65,33 @@ export const ImageViewer = () => {
   const handleUpload = useCallback(async () => {
     setUploading(true);
     try {
-      const filesToUpload = files.filter((f) => f.selected);
+      const filesToUpload = selectedIndexes.map(index => files[index]);
       const results = await uploadMultipleToGyazo(
-        filesToUpload.map((f) => f.file)
+        filesToUpload.map(f => f.file),
       );
       console.log(results);
 
       results.forEach((result, index) => {
-        updateImage(
-          files.findIndex(
-            (f) => f.file.name === filesToUpload[index].file.name
-          ),
-          {
-            gyazoUrl: result.url,
-          }
-        );
+        const itemIndex = selectedIndexes[index];
+        updateImage(itemIndex, {
+          ...files[itemIndex],
+          gyazoUrl: result.url || null,
+        });
       });
     } finally {
       setUploading(false);
     }
-  }, [files]);
+  }, [files, selectedIndexes]);
 
   const copyUrls = useCallback(() => {
-    const urls = files
-      .filter((f) => f.selected && f.gyazoUrl)
-      .map((f) => f.gyazoUrl)
-      .join("\n");
+    const urls = selectedIndexes
+      .map(index => files[index])
+      .filter(f => f.gyazoUrl)
+      .map(f => f.gyazoUrl)
+      .join('\n');
 
     navigator.clipboard.writeText(urls);
-  }, [files]);
+  }, [files, selectedIndexes]);
 
   return (
     <div className="p-4 space-y-4">
@@ -100,14 +106,14 @@ export const ImageViewer = () => {
         </div>
         <Button
           onClick={handleUpload}
-          disabled={selectedFiles.length === 0 || uploading}
+          disabled={selectedIndexes.length === 0 || uploading}
           variant="outline"
         >
-          {uploading ? "Uploading..." : "Upload to Gyazo"}
+          {uploading ? 'Uploading...' : 'Upload to Gyazo'}
         </Button>
         <Button
           onClick={copyUrls}
-          disabled={selectedFiles.length === 0}
+          disabled={selectedIndexes.length === 0}
           variant="outline"
         >
           Copy URLs
@@ -131,17 +137,17 @@ export const ImageViewer = () => {
             return (
               <div
                 key={item.file.name}
-                className={isCloseInTime ? "mb-1" : "mb-4"}
+                className={isCloseInTime ? 'mb-1' : 'mb-4'}
               >
                 <ImagePreview
                   file={item.file}
-                  selected={item.selected}
+                  selected={selectedIndexes.includes(index)}
                   onSelect={(selected, isShiftKey) =>
                     handleSelect(item.file.name, selected, isShiftKey, index)
                   }
                   index={index}
                   lastSelectedIndex={lastSelectedIndex}
-                  gyazoUrl={item.gyazoUrl}
+                  gyazoUrl={item.gyazoUrl || undefined}
                 />
               </div>
             );

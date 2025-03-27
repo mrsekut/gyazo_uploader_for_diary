@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
 import { itemsAtom, addItemAtom, updateItemAtom } from '@/features/item/atom';
+import exifr from 'exifr';
 import { uploadMultipleToGyazo } from '@/app/gyazo';
 import { useSelection } from './useSelection';
 
@@ -18,11 +19,26 @@ export const useImageViewer = () => {
       newFiles.forEach(file => {
         const reader = new FileReader();
         reader.onload = () => {
-          addImage({
-            file,
-            previewUrl: reader.result as string,
-            gyazoUrl: null,
-          });
+          exifr
+            .parse(file)
+            .then(exif => {
+              const captureDate =
+                exif?.DateTimeOriginal || exif?.CreateDate || file.lastModified;
+              addImage({
+                file,
+                previewUrl: reader.result as string,
+                gyazoUrl: null,
+                captureDate: new Date(captureDate).getTime(),
+              });
+            })
+            .catch(() => {
+              addImage({
+                file,
+                previewUrl: reader.result as string,
+                gyazoUrl: null,
+                captureDate: file.lastModified,
+              });
+            });
         };
         reader.readAsDataURL(file);
       });

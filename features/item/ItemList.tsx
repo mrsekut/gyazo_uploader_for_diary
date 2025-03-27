@@ -26,6 +26,7 @@ export const ItemList = ({
             <ImagePreview
               key={item.file.name}
               file={item.file}
+              captureDate={new Date(item.captureDate).toLocaleString()}
               selected={selectedIds.includes(item.id)}
               onSelect={() => handleSelect(item.id)}
               gyazoUrl={item.gyazoUrl}

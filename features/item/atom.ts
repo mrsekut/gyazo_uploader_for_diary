@@ -6,6 +6,7 @@ export type ImageItem = {
   file: File;
   previewUrl: string;
   gyazoUrl: string | null;
+  captureDate: number;
 };
 
 export const itemsAtom = atom<ImageItem[]>([]);

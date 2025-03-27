@@ -16,11 +16,6 @@ export const ImageViewer = () => {
     copyUrls,
   } = useImageViewer();
 
-  const imageItems = items.map(f => ({
-    ...f,
-    lastModified: f.file.lastModified,
-  }));
-
   return (
     <div className="p-4 space-y-4">
       <div className="flex gap-4">
@@ -48,7 +43,7 @@ export const ImageViewer = () => {
       </div>
 
       <ItemList
-        items={groupByTime(imageItems, 5)}
+        items={groupByTime(items, 5)}
         selectedIds={selectedIds}
         handleSelect={handleSelect}
         handleGroupSelect={handleGroupSelect}
@@ -57,9 +52,7 @@ export const ImageViewer = () => {
   );
 };
 
-const groupByTime = <
-  T extends { lastModified: number; file: { name: string } },
->(
+const groupByTime = <T extends { captureDate: number; file: { name: string } }>(
   item: T[],
   minute: number,
 ): T[][] => {
@@ -67,7 +60,7 @@ const groupByTime = <
 
   return item
     .sort((a, b) => {
-      const diff = a.lastModified - b.lastModified;
+      const diff = a.captureDate - b.captureDate;
       return diff !== 0 ? diff : a.file.name.localeCompare(b.file.name);
     })
     .reduce((acc: T[][], file) => {
@@ -79,7 +72,7 @@ const groupByTime = <
       const lastItem = lastGroup.at(-1);
       if (lastItem == null) return acc;
 
-      const diff = Math.abs(file.lastModified - lastItem.lastModified);
+      const diff = Math.abs(file.captureDate - lastItem.captureDate);
 
       if (diff > ms) return [...acc, [file]];
       return [...acc.slice(0, -1), [...lastGroup, file]];

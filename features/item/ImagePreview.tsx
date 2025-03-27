@@ -3,14 +3,19 @@ import { Image } from './Image';
 
 type Props = {
   file: File;
+  captureDate: string;
   gyazoUrl: string | null;
   onSelect: (selected: boolean) => void;
   selected: boolean;
 };
 
-export const ImagePreview = ({ file, onSelect, selected, gyazoUrl }: Props) => {
-  const lastModified = new Date(file.lastModified).toLocaleString();
-
+export const ImagePreview = ({
+  file,
+  captureDate,
+  onSelect,
+  selected,
+  gyazoUrl,
+}: Props) => {
   return (
     <Card
       className={`p-2 h-44 w-48 ${
@@ -30,7 +35,7 @@ export const ImagePreview = ({ file, onSelect, selected, gyazoUrl }: Props) => {
             <p className="text-sm font-medium text-white truncate w-full px-2">
               {file.name}
             </p>
-            <p className="text-gray-200 text-xs">{lastModified}</p>
+            <p className="text-gray-200 text-xs">{captureDate}</p>
           </div>
         </div>
 

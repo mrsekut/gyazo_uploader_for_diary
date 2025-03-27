@@ -12,6 +12,7 @@ export const ImageViewer = () => {
     handleFileChange,
     handleUpload,
     handleSelect,
+    handleGroupSelect,
     copyUrls,
   } = useImageViewer();
 
@@ -50,6 +51,7 @@ export const ImageViewer = () => {
         items={groupByTime(imageItems, 5)}
         selectedIds={selectedIds}
         handleSelect={handleSelect}
+        handleGroupSelect={handleGroupSelect}
       />
     </div>
   );

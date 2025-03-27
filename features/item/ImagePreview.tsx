@@ -4,7 +4,7 @@ import { Image } from './Image';
 type Props = {
   file: File;
   gyazoUrl: string | null;
-  onSelect: (selected: boolean, isShiftKey: boolean) => void;
+  onSelect: (selected: boolean) => void;
   selected: boolean;
 };
 
@@ -16,7 +16,10 @@ export const ImagePreview = ({ file, onSelect, selected, gyazoUrl }: Props) => {
       className={`p-2 h-44 w-48 ${
         selected ? 'ring-2 ring-blue-500' : ''
       } cursor-pointer overflow-hidden`}
-      onClick={e => onSelect(!selected, e.shiftKey)}
+      onClick={e => {
+        e.stopPropagation();
+        onSelect(!selected);
+      }}
     >
       <div className="flex flex-col gap-2">
         <div className="relative h-32 group">

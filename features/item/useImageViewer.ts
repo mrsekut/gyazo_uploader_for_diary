@@ -7,7 +7,7 @@ import { useSelection } from './useSelection';
 // TODO:
 export const useImageViewer = () => {
   const [files] = useAtom(itemsAtom);
-  const { selectedIds, handleSelect } = useSelection();
+  const { selectedIds, handleSelect, handleGroupSelect } = useSelection();
   const [uploading, setUploading] = useState(false);
   const addImage = useSetAtom(addItemAtom);
   const updateImage = useSetAtom(updateItemAtom);
@@ -64,6 +64,7 @@ export const useImageViewer = () => {
     handleFileChange,
     handleUpload,
     handleSelect,
+    handleGroupSelect,
     copyUrls,
   };
 };

@@ -4,22 +4,30 @@ import { ImageItem } from '@/features/item/atom';
 type Props = {
   items: ImageItem[][];
   selectedIds: string[];
-  handleSelect: (id: string, isShiftKey: boolean) => void;
+  handleSelect: (id: string) => void;
+  handleGroupSelect: (ids: string[]) => void;
 };
 
-export const ItemList = ({ items, selectedIds, handleSelect }: Props) => {
+export const ItemList = ({
+  items,
+  selectedIds,
+  handleSelect,
+  handleGroupSelect,
+}: Props) => {
   return (
     <div className="flex flex-col gap-8">
       {items.map((group, index) => (
-        <div key={index} className="flex flex-row gap-2 flex-wrap">
+        <div
+          key={index}
+          className="flex flex-row gap-2 flex-wrap cursor-pointer p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          onClick={() => handleGroupSelect(group.map(item => item.id))}
+        >
           {group.map(item => (
             <ImagePreview
               key={item.file.name}
               file={item.file}
               selected={selectedIds.includes(item.id)}
-              onSelect={(_selected, isShiftKey) =>
-                handleSelect(item.id, isShiftKey)
-              }
+              onSelect={() => handleSelect(item.id)}
               gyazoUrl={item.gyazoUrl}
             />
           ))}

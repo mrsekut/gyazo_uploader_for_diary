@@ -1,8 +1,8 @@
 'use client';
 import { useImageViewer } from '@/app/useImageViewer';
-import { ImagePreview } from '@/features/item/ImagePreview';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ItemList } from '@/features/item/ItemList';
 
 export const ImageViewer = () => {
   const {
@@ -14,6 +14,11 @@ export const ImageViewer = () => {
     handleSelect,
     copyUrls,
   } = useImageViewer();
+
+  const imageItems = files.map(f => ({
+    ...f,
+    lastModified: f.file.lastModified,
+  }));
 
   return (
     <div className="p-4 space-y-4">
@@ -41,37 +46,35 @@ export const ImageViewer = () => {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-1">
-        {files
-          .sort((a, b) => b.file.lastModified - a.file.lastModified)
-          .map((item, index, arr) => {
-            const currentTime = new Date(item.file.lastModified).getTime();
-            const prevTime =
-              index > 0
-                ? new Date(arr[index - 1].file.lastModified).getTime()
-                : null;
-            const timeDiff = prevTime
-              ? Math.abs(currentTime - prevTime)
-              : Infinity;
-            const isCloseInTime = timeDiff < 5 * 60 * 1000; // 5 minutes
-
-            return (
-              <div
-                key={item.file.name}
-                className={isCloseInTime ? 'mb-1' : 'mb-4'}
-              >
-                <ImagePreview
-                  file={item.file}
-                  selected={selectedIndexes.includes(index)}
-                  onSelect={(selected, isShiftKey) =>
-                    handleSelect(index, isShiftKey)
-                  }
-                  gyazoUrl={item.gyazoUrl}
-                />
-              </div>
-            );
-          })}
-      </div>
+      <ItemList
+        items={groupByTime(imageItems, 5)}
+        selectedIndexes={selectedIndexes}
+        handleSelect={handleSelect}
+      />
     </div>
   );
+};
+
+const groupByTime = <T extends { lastModified: number }>(
+  item: T[],
+  minute: number,
+): T[][] => {
+  const ms = minute * 60 * 1000;
+
+  return item
+    .sort((a, b) => b.lastModified - a.lastModified)
+    .reduce((acc: T[][], file) => {
+      if (acc.length === 0) return [[file]];
+
+      const lastGroup = acc.at(-1);
+      if (lastGroup == null) return acc;
+
+      const lastItem = lastGroup.at(-1);
+      if (lastItem == null) return acc;
+
+      const diff = Math.abs(file.lastModified - lastItem.lastModified);
+
+      if (diff > ms) return [...acc, [file]];
+      return [...acc.slice(0, -1), [...lastGroup, file]];
+    }, []);
 };

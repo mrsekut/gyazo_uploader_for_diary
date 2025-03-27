@@ -20,7 +20,7 @@ export const ItemList = ({ items, selectedIndexes, handleSelect }: Props) => {
               onSelect={(_selected, isShiftKey) =>
                 handleSelect(item.index, isShiftKey)
               }
-              gyazoUrl={item.gyazoUrl ?? null}
+              gyazoUrl={item.gyazoUrl}
             />
           ))}
         </div>

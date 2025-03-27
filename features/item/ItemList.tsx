@@ -3,11 +3,11 @@ import { ImageItem } from '@/features/item/atom';
 
 type Props = {
   items: ImageItem[][];
-  selectedIndexes: number[];
-  handleSelect: (index: number, isShiftKey: boolean) => void;
+  selectedIds: string[];
+  handleSelect: (id: string, isShiftKey: boolean) => void;
 };
 
-export const ItemList = ({ items, selectedIndexes, handleSelect }: Props) => {
+export const ItemList = ({ items, selectedIds, handleSelect }: Props) => {
   return (
     <div className="flex flex-col gap-8">
       {items.map((group, index) => (
@@ -16,9 +16,9 @@ export const ItemList = ({ items, selectedIndexes, handleSelect }: Props) => {
             <ImagePreview
               key={item.file.name}
               file={item.file}
-              selected={selectedIndexes.includes(item.index)}
+              selected={selectedIds.includes(item.id)}
               onSelect={(_selected, isShiftKey) =>
-                handleSelect(item.index, isShiftKey)
+                handleSelect(item.id, isShiftKey)
               }
               gyazoUrl={item.gyazoUrl}
             />

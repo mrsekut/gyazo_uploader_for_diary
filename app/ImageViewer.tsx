@@ -7,7 +7,7 @@ import { ItemList } from '@/features/item/ItemList';
 export const ImageViewer = () => {
   const {
     files,
-    selectedIndexes,
+    selectedIds,
     uploading,
     handleFileChange,
     handleUpload,
@@ -32,14 +32,14 @@ export const ImageViewer = () => {
         />
         <Button
           onClick={handleUpload}
-          disabled={selectedIndexes.length === 0 || uploading}
+          disabled={selectedIds.length === 0 || uploading}
           variant="outline"
         >
           {uploading ? 'Uploading...' : 'Upload to Gyazo'}
         </Button>
         <Button
           onClick={copyUrls}
-          disabled={selectedIndexes.length === 0}
+          disabled={selectedIds.length === 0}
           variant="outline"
         >
           Copy URLs
@@ -48,7 +48,7 @@ export const ImageViewer = () => {
 
       <ItemList
         items={groupByTime(imageItems, 5)}
-        selectedIndexes={selectedIndexes}
+        selectedIds={selectedIds}
         handleSelect={handleSelect}
       />
     </div>

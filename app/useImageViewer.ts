@@ -6,7 +6,7 @@ import { useSelection } from './useSelection';
 
 export const useImageViewer = () => {
   const [files] = useAtom(itemsAtom);
-  const { selectedIndexes, handleSelect } = useSelection();
+  const { selectedIds, handleSelect } = useSelection();
   const [uploading, setUploading] = useState(false);
   const addImage = useSetAtom(addItemAtom);
   const updateImage = useSetAtom(updateItemAtom);
@@ -20,7 +20,6 @@ export const useImageViewer = () => {
           addImage({
             file,
             previewUrl: reader.result as string,
-            index: files.length,
             gyazoUrl: null,
           });
         };
@@ -32,36 +31,34 @@ export const useImageViewer = () => {
   const handleUpload = useCallback(async () => {
     setUploading(true);
     try {
-      const filesToUpload = selectedIndexes.map(index => files[index]);
+      const filesToUpload = files.filter(file => selectedIds.includes(file.id));
       const results: { url: string }[] = await uploadMultipleToGyazo(
         filesToUpload.map(f => f.file),
       );
 
       results.forEach((result, index) => {
-        const itemIndex = selectedIndexes[index];
-        updateImage(itemIndex, {
-          ...files[itemIndex],
+        const fileId = filesToUpload[index].id;
+        updateImage(fileId, {
           gyazoUrl: result.url || null,
         });
       });
     } finally {
       setUploading(false);
     }
-  }, [files, selectedIndexes]);
+  }, [files, selectedIds]);
 
   const copyUrls = useCallback(() => {
-    const urls = selectedIndexes
-      .map(index => files[index])
-      .filter(f => f.gyazoUrl)
-      .map(f => f.gyazoUrl)
+    const urls = files
+      .filter(file => selectedIds.includes(file.id) && file.gyazoUrl)
+      .map(file => file.gyazoUrl)
       .join('\n');
 
     navigator.clipboard.writeText(urls);
-  }, [files, selectedIndexes]);
+  }, [files, selectedIds]);
 
   return {
     files,
-    selectedIndexes,
+    selectedIds,
     uploading,
     handleFileChange,
     handleUpload,

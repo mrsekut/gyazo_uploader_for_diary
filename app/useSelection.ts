@@ -1,38 +1,30 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
-import { selectedIndexAtom } from '@/features/item/select';
+import { selectedIdsAtom } from '@/features/item/select';
 
 export const useSelection = () => {
-  const [selectedIndexes, setSelectedIndexes] = useAtom(selectedIndexAtom);
-  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(
-    null,
-  );
+  const [selectedIds, setSelectedIds] = useAtom(selectedIdsAtom);
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
 
-  const handleSelect = (index: number, isShiftKey: boolean) => {
-    const selected = !selectedIndexes.includes(index);
+  const handleSelect = (id: string, isShiftKey: boolean) => {
+    const selected = !selectedIds.includes(id);
 
-    if (isShiftKey && lastSelectedIndex !== null) {
-      // Range selection
-      const start = Math.min(lastSelectedIndex, index);
-      const end = Math.max(lastSelectedIndex, index);
-      const newSelectedIndexes = new Set(selectedIndexes);
-      for (let i = start; i <= end; i++) {
-        newSelectedIndexes.add(i);
-      }
-      setSelectedIndexes(Array.from(newSelectedIndexes));
+    if (isShiftKey && lastSelectedId !== null) {
+      // Range selection not supported with IDs - just toggle the single item
+      setSelectedIds(
+        selected ? [...selectedIds, id] : selectedIds.filter(i => i !== id),
+      );
     } else {
       // Single selection
-      setSelectedIndexes(
-        selected
-          ? [...selectedIndexes, index]
-          : selectedIndexes.filter(i => i !== index),
+      setSelectedIds(
+        selected ? [...selectedIds, id] : selectedIds.filter(i => i !== id),
       );
     }
-    setLastSelectedIndex(index);
+    setLastSelectedId(id);
   };
 
   return {
-    selectedIndexes,
+    selectedIds,
     handleSelect,
   };
 };

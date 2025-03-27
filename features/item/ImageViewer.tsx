@@ -1,5 +1,6 @@
 'use client';
 import { useImageViewer } from '@/features/item/useImageViewer';
+import { useCopyUrls } from '@/features/item/useCopyUrls';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ItemList } from '@/features/item/ItemList';
@@ -13,8 +14,8 @@ export const ImageViewer = () => {
     handleUpload,
     handleSelect,
     handleGroupSelect,
-    copyUrls,
   } = useImageViewer();
+  const { copyUrls, copied } = useCopyUrls();
 
   return (
     <div className="p-4 space-y-4">
@@ -38,7 +39,7 @@ export const ImageViewer = () => {
           disabled={selectedIds.length === 0}
           variant="outline"
         >
-          Copy URLs
+          {copied ? 'Copied!' : 'Copy URLs'}
         </Button>
       </div>
 

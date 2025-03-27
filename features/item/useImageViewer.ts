@@ -48,14 +48,20 @@ export const useImageViewer = () => {
     }
   }, [items, selectedIds]);
 
-  const copyUrls = useCallback(() => {
-    const urls = items
-      .filter(file => selectedIds.includes(file.id))
-      .filter(file => file.gyazoUrl != null)
-      .map(file => `[${file.gyazoUrl}]`)
-      .join(' ');
+  const copyUrls = useCallback(async () => {
+    try {
+      const urls = items
+        .filter(file => selectedIds.includes(file.id))
+        .filter(file => file.gyazoUrl != null)
+        .map(file => `[${file.gyazoUrl}]`)
+        .join(' ');
 
-    navigator.clipboard.writeText(urls);
+      await navigator.clipboard.writeText(urls);
+      window.alert('copied URLs');
+    } catch (error) {
+      window.alert('Failed to copy URLs');
+      console.error('Failed to copy URLs:', error);
+    }
   }, [items, selectedIds]);
 
   return {

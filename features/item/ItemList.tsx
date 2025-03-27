@@ -9,7 +9,7 @@ type Props = {
 
 export const ItemList = ({ items, selectedIndexes, handleSelect }: Props) => {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       {items.map((group, index) => (
         <div key={index} className="flex flex-row gap-2 flex-wrap">
           {group.map(item => (

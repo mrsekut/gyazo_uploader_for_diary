@@ -18,7 +18,7 @@ export const ImageViewer = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex gap-4">
+      <div className="p-4 flex gap-4 sticky top-0 z-50 bg-background pb-4">
         <Input
           type="file"
           className="flex gap-2"

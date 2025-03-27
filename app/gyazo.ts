@@ -1,5 +1,5 @@
-'use server'
-import { GYAZO_CONFIG } from "./config";
+'use server';
+import { GYAZO_CONFIG } from './config';
 
 type GyazoUploadResponse = {
   image_id: string;
@@ -8,26 +8,30 @@ type GyazoUploadResponse = {
   url: string;
 };
 
-export const uploadToGyazo = async (
-  file: File
-): Promise<GyazoUploadResponse> => {
+export const uploadMultipleToGyazo = async (
+  files: File[],
+): Promise<GyazoUploadResponse[]> => {
+  return Promise.all(files.map(file => uploadToGyazo(file)));
+};
+
+const uploadToGyazo = async (file: File): Promise<GyazoUploadResponse> => {
   if (!GYAZO_CONFIG.ACCESS_TOKEN) {
     throw new Error(
-      "Gyazo access token is not configured. Please set GYAZO_ACCESS_TOKEN in your environment variables."
+      'Gyazo access token is not configured. Please set GYAZO_ACCESS_TOKEN in your environment variables.',
     );
   }
 
   const formData = new FormData();
-  formData.append("access_token", GYAZO_CONFIG.ACCESS_TOKEN);
-  formData.append("imagedata", file);
+  formData.append('access_token', GYAZO_CONFIG.ACCESS_TOKEN);
+  formData.append('imagedata', file);
 
   const response = await fetch(GYAZO_CONFIG.UPLOAD_URL, {
-    method: "POST",
+    method: 'POST',
     body: formData,
-    mode: "cors",
-    credentials: "include",
+    mode: 'cors',
+    credentials: 'include',
     headers: {
-      Accept: "application/json",
+      Accept: 'application/json',
     },
   });
 
@@ -36,10 +40,4 @@ export const uploadToGyazo = async (
   }
 
   return response.json();
-};
-
-export const uploadMultipleToGyazo = async (
-  files: File[]
-): Promise<GyazoUploadResponse[]> => {
-  return Promise.all(files.map((file) => uploadToGyazo(file)));
 };

@@ -4,6 +4,7 @@ import { itemsAtom, addItemAtom, updateItemAtom } from '@/features/item/atom';
 import { uploadMultipleToGyazo } from '@/app/gyazo';
 import { useSelection } from './useSelection';
 
+// TODO:
 export const useImageViewer = () => {
   const [files] = useAtom(itemsAtom);
   const { selectedIds, handleSelect } = useSelection();

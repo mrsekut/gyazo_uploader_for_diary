@@ -50,9 +50,10 @@ export const useImageViewer = () => {
 
   const copyUrls = useCallback(() => {
     const urls = items
-      .filter(file => selectedIds.includes(file.id) && file.gyazoUrl)
-      .map(file => file.gyazoUrl)
-      .join('\n');
+      .filter(file => selectedIds.includes(file.id))
+      .filter(file => file.gyazoUrl != null)
+      .map(file => `[${file.gyazoUrl}]`)
+      .join(' ');
 
     navigator.clipboard.writeText(urls);
   }, [items, selectedIds]);

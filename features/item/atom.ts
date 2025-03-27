@@ -1,8 +1,10 @@
 import { atom } from 'jotai';
 import { nanoid } from 'nanoid';
 
+export type ImageId = string;
+
 export type ImageItem = {
-  id: string;
+  id: ImageId;
   file: File;
   previewUrl: string;
   gyazoUrl: string | null;

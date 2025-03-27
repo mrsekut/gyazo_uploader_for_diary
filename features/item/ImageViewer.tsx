@@ -14,6 +14,7 @@ export const ImageViewer = () => {
     handleUpload,
     handleSelect,
     handleGroupSelect,
+    handleResetSelection,
   } = useImageViewer();
   const { copyUrls, copied } = useCopyUrls();
 
@@ -40,6 +41,13 @@ export const ImageViewer = () => {
           variant="outline"
         >
           {copied ? 'Copied!' : 'Copy URLs'}
+        </Button>
+        <Button
+          onClick={handleResetSelection}
+          disabled={selectedIds.length === 0}
+          variant="outline"
+        >
+          Reset Selection
         </Button>
       </div>
 

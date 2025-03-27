@@ -20,9 +20,14 @@ export const useSelection = () => {
     }
   };
 
+  const handleResetSelection = () => {
+    setSelectedIds([]);
+  };
+
   return {
     selectedIds,
     handleSelect,
     handleGroupSelect,
+    handleResetSelection,
   };
 };

@@ -8,7 +8,8 @@ import { useSelection } from './useSelection';
 // TODO:
 export const useImageViewer = () => {
   const [items] = useAtom(itemsAtom);
-  const { selectedIds, handleSelect, handleGroupSelect } = useSelection();
+  const { selectedIds, handleSelect, handleGroupSelect, handleResetSelection } =
+    useSelection();
   const [uploading, setUploading] = useState(false);
   const addImage = useSetAtom(addItemAtom);
   const updateImage = useSetAtom(updateItemAtom);
@@ -72,5 +73,6 @@ export const useImageViewer = () => {
     handleUpload,
     handleSelect,
     handleGroupSelect,
+    handleResetSelection,
   };
 };

@@ -6,7 +6,7 @@ import { useSelection } from './useSelection';
 
 // TODO:
 export const useImageViewer = () => {
-  const [files] = useAtom(itemsAtom);
+  const [items] = useAtom(itemsAtom);
   const { selectedIds, handleSelect, handleGroupSelect } = useSelection();
   const [uploading, setUploading] = useState(false);
   const addImage = useSetAtom(addItemAtom);
@@ -32,7 +32,7 @@ export const useImageViewer = () => {
   const handleUpload = useCallback(async () => {
     setUploading(true);
     try {
-      const filesToUpload = files.filter(file => selectedIds.includes(file.id));
+      const filesToUpload = items.filter(file => selectedIds.includes(file.id));
       const results: { url: string }[] = await uploadMultipleToGyazo(
         filesToUpload.map(f => f.file),
       );
@@ -46,19 +46,19 @@ export const useImageViewer = () => {
     } finally {
       setUploading(false);
     }
-  }, [files, selectedIds]);
+  }, [items, selectedIds]);
 
   const copyUrls = useCallback(() => {
-    const urls = files
+    const urls = items
       .filter(file => selectedIds.includes(file.id) && file.gyazoUrl)
       .map(file => file.gyazoUrl)
       .join('\n');
 
     navigator.clipboard.writeText(urls);
-  }, [files, selectedIds]);
+  }, [items, selectedIds]);
 
   return {
-    files,
+    items,
     selectedIds,
     uploading,
     handleFileChange,

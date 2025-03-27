@@ -6,7 +6,7 @@ import { ItemList } from '@/features/item/ItemList';
 
 export const ImageViewer = () => {
   const {
-    files,
+    items,
     selectedIds,
     uploading,
     handleFileChange,
@@ -16,7 +16,7 @@ export const ImageViewer = () => {
     copyUrls,
   } = useImageViewer();
 
-  const imageItems = files.map(f => ({
+  const imageItems = items.map(f => ({
     ...f,
     lastModified: f.file.lastModified,
   }));

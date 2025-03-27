@@ -145,8 +145,6 @@ export const ImageViewer = () => {
                   onSelect={(selected, isShiftKey) =>
                     handleSelect(item.file.name, selected, isShiftKey, index)
                   }
-                  index={index}
-                  lastSelectedIndex={lastSelectedIndex}
                   gyazoUrl={item.gyazoUrl}
                 />
               </div>

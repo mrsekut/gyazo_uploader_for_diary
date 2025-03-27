@@ -1,7 +1,9 @@
 'use server';
+import { ImageId, ImageItem } from '@/features/item/atom';
 import { GYAZO_CONFIG } from './config';
 
 type GyazoUploadResponse = {
+  imageId: ImageId;
   image_id: string;
   permalink_url: string;
   thumb_url: string;
@@ -9,12 +11,15 @@ type GyazoUploadResponse = {
 };
 
 export const uploadMultipleToGyazo = async (
-  files: File[],
+  items: ImageItem[],
 ): Promise<GyazoUploadResponse[]> => {
-  return Promise.all(files.map(file => uploadToGyazo(file)));
+  return Promise.all(items.map(item => uploadToGyazo(item.id, item.file)));
 };
 
-const uploadToGyazo = async (file: File): Promise<GyazoUploadResponse> => {
+const uploadToGyazo = async (
+  imageId: ImageId,
+  file: File,
+): Promise<GyazoUploadResponse> => {
   if (!GYAZO_CONFIG.ACCESS_TOKEN) {
     throw new Error(
       'Gyazo access token is not configured. Please set GYAZO_ACCESS_TOKEN in your environment variables.',
@@ -39,5 +44,10 @@ const uploadToGyazo = async (file: File): Promise<GyazoUploadResponse> => {
     throw new Error(`Gyazo upload failed: ${response.statusText}`);
   }
 
-  return response.json();
+  const result = await response.json();
+
+  return {
+    ...result,
+    imageId,
+  };
 };

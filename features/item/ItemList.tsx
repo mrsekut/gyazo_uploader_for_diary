@@ -24,12 +24,10 @@ export const ItemList = ({
         >
           {group.map(item => (
             <ImagePreview
-              key={item.file.name}
-              file={item.file}
-              captureDate={new Date(item.captureDate).toLocaleString()}
+              key={item.id}
+              item={item}
               selected={selectedIds.includes(item.id)}
               onSelect={() => handleSelect(item.id)}
-              gyazoUrl={item.gyazoUrl}
             />
           ))}
         </div>

@@ -2,14 +2,16 @@ import { useState, useEffect } from 'react';
 import NextImage from 'next/image';
 import heic2any from 'heic2any';
 import { Loader } from 'lucide-react';
+import { ImageItem } from './atom';
 
 type Props = {
-  file: File;
+  item: ImageItem;
 };
 
-export const Image = ({ file }: Props) => {
+export const Image = ({ item }: Props) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { file } = item;
 
   useEffect(() => {
     const processFile = async () => {

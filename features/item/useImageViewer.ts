@@ -50,9 +50,7 @@ export const useImageViewer = () => {
     setUploading(true);
     try {
       const filesToUpload = items.filter(file => selectedIds.includes(file.id));
-      const results = await uploadMultipleToGyazo(
-        filesToUpload.map(f => f.file),
-      );
+      const results = await uploadMultipleToGyazo(filesToUpload);
 
       results.forEach((result, index) => {
         const fileId = filesToUpload[index].id;

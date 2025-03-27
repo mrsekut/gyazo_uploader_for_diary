@@ -57,14 +57,19 @@ export const ImageViewer = () => {
   );
 };
 
-const groupByTime = <T extends { lastModified: number }>(
+const groupByTime = <
+  T extends { lastModified: number; file: { name: string } },
+>(
   item: T[],
   minute: number,
 ): T[][] => {
   const ms = minute * 60 * 1000;
 
   return item
-    .sort((a, b) => a.lastModified - b.lastModified)
+    .sort((a, b) => {
+      const diff = a.lastModified - b.lastModified;
+      return diff !== 0 ? diff : a.file.name.localeCompare(b.file.name);
+    })
     .reduce((acc: T[][], file) => {
       if (acc.length === 0) return [[file]];
 

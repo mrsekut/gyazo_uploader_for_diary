@@ -4,11 +4,9 @@ import heic2any from 'heic2any';
 
 type Props = {
   file: File;
-  width: number;
-  height: number;
 };
 
-export const Image = ({ file, width, height }: Props) => {
+export const Image = ({ file }: Props) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,8 +32,7 @@ export const Image = ({ file, width, height }: Props) => {
     <NextImage
       src={previewUrl}
       alt={file.name}
-      width={width}
-      height={height}
+      fill
       className="w-full h-full object-contain"
       unoptimized
     />

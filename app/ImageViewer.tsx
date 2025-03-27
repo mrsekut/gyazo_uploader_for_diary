@@ -1,7 +1,7 @@
 'use client';
 import { useState, useCallback } from 'react';
 import { useAtom, useSetAtom } from 'jotai';
-import { ImagePreview } from './ImagePreview';
+import { ImagePreview } from '../features/item/ImagePreview';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { itemsAtom, addItemAtom, updateItemAtom } from '../features/item/atom';

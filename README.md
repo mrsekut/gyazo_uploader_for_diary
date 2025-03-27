@@ -1,4 +1,4 @@
-# Gyazo Uploader for Daialy
+# Gyazo Uploader for Diary
 
 A simple tool to upload images to Gyazo.
 
@@ -12,4 +12,10 @@ A simple tool to upload images to Gyazo.
 
 ```bash
 bun run dev
+```
+
+You need to set Gyazo access token in `.env` file:
+
+```bash
+GYAZO_ACCESS_TOKEN=your_access_token_here
 ```

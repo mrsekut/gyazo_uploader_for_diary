@@ -33,14 +33,14 @@ export const useImageViewer = () => {
     setUploading(true);
     try {
       const filesToUpload = items.filter(file => selectedIds.includes(file.id));
-      const results: { url: string }[] = await uploadMultipleToGyazo(
+      const results = await uploadMultipleToGyazo(
         filesToUpload.map(f => f.file),
       );
 
       results.forEach((result, index) => {
         const fileId = filesToUpload[index].id;
         updateImage(fileId, {
-          gyazoUrl: result.url || null,
+          gyazoUrl: result.permalink_url || null,
         });
       });
     } finally {

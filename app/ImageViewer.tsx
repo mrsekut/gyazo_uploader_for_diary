@@ -147,7 +147,7 @@ export const ImageViewer = () => {
                   }
                   index={index}
                   lastSelectedIndex={lastSelectedIndex}
-                  gyazoUrl={item.gyazoUrl || undefined}
+                  gyazoUrl={item.gyazoUrl}
                 />
               </div>
             );

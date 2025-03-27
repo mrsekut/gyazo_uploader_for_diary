@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import heic2any from "heic2any";
-import { Card } from "../components/ui/card";
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import heic2any from 'heic2any';
+import { Card } from '../components/ui/card';
 
 type Props = {
   file: File;
@@ -8,9 +9,10 @@ type Props = {
   selected?: boolean;
   index?: number;
   lastSelectedIndex?: number | null;
-  gyazoUrl?: string;
+  gyazoUrl: string | null;
 };
 
+// TODO: style
 export const ImagePreview = ({
   file,
   onSelect,
@@ -23,35 +25,17 @@ export const ImagePreview = ({
 
   useEffect(() => {
     const processFile = async () => {
-      if (
-        file.type === "image/heic" ||
-        file.type === "image/heif" ||
-        file.name.toLowerCase().endsWith(".heic") ||
-        file.name.toLowerCase().endsWith(".heif")
-      ) {
+      if (isHeic(file)) {
         try {
-          const convertedBlob = await heic2any({
-            blob: file,
-            toType: "image/jpeg",
-            quality: 0.8,
-          });
-          const reader = new FileReader();
-          reader.onload = () => setPreviewUrl(reader.result as string);
-          reader.readAsDataURL(convertedBlob as Blob);
+          const url = await convertHeicToJpeg(file);
+          setPreviewUrl(url);
         } catch (error) {
-          console.error("HEIC conversion failed:", error);
-          // Fallback to regular processing
-          readAsDataURL(file);
+          console.error('HEIC conversion failed:', error);
         }
       } else {
-        readAsDataURL(file);
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
       }
-    };
-
-    const readAsDataURL = (file: File) => {
-      const reader = new FileReader();
-      reader.onload = () => setPreviewUrl(reader.result as string);
-      reader.readAsDataURL(file);
     };
 
     processFile();
@@ -59,17 +43,17 @@ export const ImagePreview = ({
 
   return (
     <Card
-      className={`p-2 ${selected
-        ? "ring-2 ring-blue-500"
-        : index !== undefined &&
-          lastSelectedIndex !== null &&
-          lastSelectedIndex !== undefined &&
-          ((index >= lastSelectedIndex && index <= lastSelectedIndex) ||
-            (index <= lastSelectedIndex && index >= lastSelectedIndex))
-          ? "bg-blue-50"
-          : ""
-        } cursor-pointer`}
-      onClick={(e) => {
+      className={`p-2 ${
+        selected
+          ? 'ring-2 ring-blue-500'
+          : index != null &&
+            lastSelectedIndex != null &&
+            ((index >= lastSelectedIndex && index <= lastSelectedIndex) ||
+              (index <= lastSelectedIndex && index >= lastSelectedIndex))
+          ? 'bg-blue-50'
+          : ''
+      } cursor-pointer`}
+      onClick={e => {
         if (onSelect) {
           onSelect(!selected, e.shiftKey);
         }
@@ -78,13 +62,17 @@ export const ImagePreview = ({
       <div className="flex items-start gap-4">
         <div className="w-24 h-24 flex-shrink-0">
           {previewUrl && (
-            <img
+            <Image
               src={previewUrl}
               alt={file.name}
+              width={96}
+              height={96}
               className="w-full h-full object-contain"
+              unoptimized
             />
           )}
         </div>
+
         <div className="flex-grow flex flex-col justify-between h-24">
           <div>
             <p className="font-medium truncate">{file.name}</p>
@@ -104,3 +92,19 @@ export const ImagePreview = ({
     </Card>
   );
 };
+
+const convertHeicToJpeg = async (file: File) => {
+  const convertedBlob = await heic2any({
+    blob: file,
+    toType: 'image/jpeg',
+    quality: 0.8,
+  });
+
+  return URL.createObjectURL(convertedBlob as Blob);
+};
+
+const isHeic = (file: File) =>
+  file.type === 'image/heic' ||
+  file.type === 'image/heif' ||
+  file.name.toLowerCase().endsWith('.heic') ||
+  file.name.toLowerCase().endsWith('.heif');

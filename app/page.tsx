@@ -1,4 +1,4 @@
-import { ImageViewer } from "./ImageViewer";
+import { ImageViewer } from '../features/item/ImageViewer';
 
 export default function Home() {
   return (

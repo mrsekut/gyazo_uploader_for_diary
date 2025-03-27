@@ -1,5 +1,5 @@
 'use client';
-import { useImageViewer } from '@/app/useImageViewer';
+import { useImageViewer } from '@/features/item/useImageViewer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ItemList } from '@/features/item/ItemList';

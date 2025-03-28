@@ -4,19 +4,21 @@ import { useCopyUrls } from '@/features/item/useCopyUrls';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ItemList } from '@/features/item/ItemList';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { uploadAtom, uploadingAtom } from './upload/atom';
 
 export const ImageViewer = () => {
   const {
     items,
     selectedIds,
-    uploading,
     handleFileChange,
-    handleUpload,
     handleSelect,
     handleGroupSelect,
     handleResetSelection,
   } = useImageViewer();
   const { copyUrls, copied } = useCopyUrls();
+  const uploading = useAtomValue(uploadingAtom);
+  const handleUpload = useSetAtom(uploadAtom);
 
   return (
     <div className="p-4 space-y-4">

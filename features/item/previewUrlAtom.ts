@@ -8,7 +8,6 @@ type Stauts =
   | { type: 'loaded'; url: string } // preview or gyazo
   | { type: 'none'; url: null };
 
-// TODO: upload後にgyazoにする
 export const previewUrlAtom = atomFamily((_id: ImageId) =>
   atom<Stauts>({ type: 'loading' }),
 );

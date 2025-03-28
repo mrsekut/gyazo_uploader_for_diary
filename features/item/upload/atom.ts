@@ -2,6 +2,7 @@ import { atom } from 'jotai';
 import { itemIdsAtom, itemAtom } from '@/features/item/atom';
 import { uploadMultipleToGyazo } from '@/features/item/upload/gyazo';
 import { selectedIdsAtom } from '../select';
+import { previewUrlAtom } from '../previewUrlAtom';
 
 export const uploadingAtom = atom(false);
 export const uploadAtom = atom(null, async (get, set) => {
@@ -20,7 +21,10 @@ export const uploadAtom = atom(null, async (get, set) => {
         ...item,
         gyazoUrl: result.permalink_url,
       }));
-      // set(loadingAtom(result.imageId), false);
+      set(previewUrlAtom(result.imageId), {
+        type: 'loaded',
+        url: `https://i.gyazo.com/thumb/3024/${result.image_id}-heic.jpg`,
+      });
     });
   } finally {
     set(uploadingAtom, false);

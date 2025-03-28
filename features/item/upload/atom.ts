@@ -1,8 +1,7 @@
 import { atom } from 'jotai';
-import { updateGyaoUrlAtom, itemIdsAtom, itemAtom } from '@/features/item/atom';
+import { itemIdsAtom, itemAtom } from '@/features/item/atom';
 import { uploadMultipleToGyazo } from '@/features/item/upload/gyazo';
 import { selectedIdsAtom } from '../select';
-import { loadingAtom } from '../Image';
 
 export const uploadingAtom = atom(false);
 export const uploadAtom = atom(null, async (get, set) => {
@@ -17,13 +16,13 @@ export const uploadAtom = atom(null, async (get, set) => {
     const results = await uploadMultipleToGyazo(items);
 
     results.forEach(result => {
-      set(updateGyaoUrlAtom, result.imageId, {
-        previewUrl: `https://i.gyazo.com/thumb/3024/${result.image_id}-heic.jpg`,
+      set(itemAtom(result.imageId), item => ({
+        ...item,
         gyazoUrl: result.permalink_url,
-      });
-      set(loadingAtom(result.imageId), false);
+      }));
+      // set(loadingAtom(result.imageId), false);
     });
   } finally {
-    set(uploadingAtom, false); // TODO:
+    set(uploadingAtom, false);
   }
 });

@@ -19,21 +19,6 @@ export const itemAtom = atomFamily((id: ImageId) =>
 );
 const _itemAtom = atomFamily((_id: ImageId) => atom<ImageItem | null>(null));
 
-// TODO: name, args
-export const updateGyaoUrlAtom = atom(
-  null,
-  (
-    _get,
-    set,
-    id: string,
-    update: {
-      gyazoUrl: string;
-    },
-  ) => {
-    set(itemAtom(id), item => ({ ...item, ...update }));
-  },
-);
-
 // items
 export const itemsAtom = atom(get => {
   const ids = get(itemIdsAtom);

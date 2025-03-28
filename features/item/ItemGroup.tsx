@@ -14,6 +14,7 @@ export const ItemGroup = ({ group }: Props) => {
   const { copyUrls, copied } = useCopyUrls();
   const onUpload = useSetAtom(uploadAtom);
   const [uploading, setUploading] = useState(false);
+  const uploaded = group.some(item => item.gyazoUrl);
 
   const handleUpload = async () => {
     setUploading(true);
@@ -27,21 +28,24 @@ export const ItemGroup = ({ group }: Props) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleUpload}
-          disabled={uploading}
-        >
-          {uploading ? 'Uploading...' : 'Upload'}
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => copyUrls(group.map(item => item.id))}
-        >
-          {copied ? 'Copied!' : 'Copy URLs'}
-        </Button>
+        {uploaded ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => copyUrls(group.map(item => item.id))}
+          >
+            {copied ? 'Copied!' : 'Copy URLs'}
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleUpload}
+            disabled={uploading}
+          >
+            {uploading ? 'Uploading...' : 'Upload'}
+          </Button>
+        )}
       </div>
       <div className="flex flex-row gap-2 flex-wrap p-2">
         {group.map(item => (

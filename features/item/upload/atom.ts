@@ -3,10 +3,7 @@ import { itemAtom } from '@/features/item/atom';
 import { uploadMultipleToGyazo } from '@/features/item/upload/gyazo';
 import { previewUrlAtom } from '../previewUrlAtom';
 
-export const uploadingAtom = atom(false);
 export const uploadAtom = atom(null, async (get, set, ids: string[]) => {
-  set(uploadingAtom, true);
-
   try {
     const items = ids.map(id => get(itemAtom(id)));
     const results = await uploadMultipleToGyazo(items);
@@ -22,6 +19,6 @@ export const uploadAtom = atom(null, async (get, set, ids: string[]) => {
       });
     });
   } finally {
-    set(uploadingAtom, false);
+    //
   }
 });

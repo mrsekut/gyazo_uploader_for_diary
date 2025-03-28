@@ -8,7 +8,7 @@ type Props = {
   item: ImageItem;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// TODO: deprecated
 export const loadingAtom = atomFamily((_id: ImageId) => atom(false));
 
 export const Image = ({ item }: Props) => {

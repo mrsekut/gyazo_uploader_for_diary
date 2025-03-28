@@ -1,35 +1,39 @@
 import { atom } from 'jotai';
 import { nanoid } from 'nanoid';
 import heic2any from 'heic2any';
+import { atomFamily } from 'jotai/utils';
+import { nonNullableAtom } from '@/utils/nonNullableAtom';
 
 export type ImageId = string;
 
 export type ImageItem = {
   id: ImageId;
   file: File;
-  previewUrl: string | null;
+  previewUrl: string | null; // TODO: 不要?
   gyazoUrl: string | null;
   captureDate: number;
 };
 
-export const itemsAtom = atom<ImageItem[]>([]);
+export const itemIdsAtom = atom<ImageId[]>([]);
 
-export const addItemAtom = atom(
-  null,
-  (get, set, item: Omit<ImageItem, 'id'>) => {
-    const items = get(itemsAtom);
-    set(itemsAtom, [...items, { ...item, id: nanoid() }]);
-  },
+export const itemAtom = atomFamily((id: ImageId) =>
+  nonNullableAtom(itemAtom_(id), `itemAtom(${id})`),
 );
+const itemAtom_ = atomFamily((_id: ImageId) => atom<ImageItem | null>(null));
 
-export const updateItemAtom = atom(
+// TODO: name
+export const updateGyaoUrlAtom = atom(
   null,
-  (get, set, id: string, update: Partial<ImageItem>) => {
-    const items = get(itemsAtom);
-    set(
-      itemsAtom,
-      items.map(item => (item.id === id ? { ...item, ...update } : item)),
-    );
+  (
+    _get,
+    set,
+    id: string,
+    update: {
+      gyazoUrl: string;
+      previewUrl: string;
+    },
+  ) => {
+    set(itemAtom(id), item => ({ ...item, ...update }));
   },
 );
 
@@ -61,15 +65,29 @@ export const previewUrlAtom = atom(
         url = URL.createObjectURL(file);
       }
 
-      const items = get(itemsAtom);
-      set(
-        itemsAtom,
-        items.map(item =>
-          item.id === itemId ? { ...item, previewUrl: url } : item,
-        ),
-      );
+      // set(
+      //   itemsAtom,
+      //   items.map(item =>
+      //     item.id === itemId ? { ...item, previewUrl: url } : item,
+      //   ),
+      // );
     } catch (error) {
       console.error('Image processing failed:', error);
     }
+  },
+);
+
+// items
+export const itemsAtom = atom(get => {
+  const ids = get(itemIdsAtom);
+  return ids.map(id => get(itemAtom(id)));
+});
+
+export const addItemAtom = atom(
+  null,
+  (_get, set, item: Omit<ImageItem, 'id'>) => {
+    const id = nanoid();
+    set(itemIdsAtom, ids => [...ids, id]);
+    set(itemAtom(id), { ...item, id });
   },
 );

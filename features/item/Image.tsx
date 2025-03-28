@@ -1,51 +1,29 @@
-import { useState, useEffect } from 'react';
 import NextImage from 'next/image';
-import heic2any from 'heic2any';
-import { Loader } from 'lucide-react';
-import { ImageId, ImageItem } from './atom';
+import { ImageId, ImageItem, previewUrlAtom } from './atom';
 import { atomFamily } from 'jotai/utils';
 import { atom, useAtom } from 'jotai';
+import { Loader } from 'lucide-react';
 
 type Props = {
   item: ImageItem;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loadingAtom = atomFamily((_id: ImageId) => atom(false));
 
 export const Image = ({ item }: Props) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useAtom(loadingAtom(item.id));
-  const { file } = item;
+  const { file, id } = item;
 
-  // TODO: atom上でやる, worker
-  useEffect(() => {
-    const processFile = async () => {
-      if (isHeic(file)) {
-        try {
-          setLoading(true);
-          const url = await convertHeicToJpeg(file);
-          setPreviewUrl(url);
-        } catch (error) {
-          console.error('HEIC conversion failed:', error);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        const url = URL.createObjectURL(file);
-        setPreviewUrl(url);
-      }
-    };
+  const [, setPreviewUrl] = useAtom(previewUrlAtom);
+  setPreviewUrl({ file, itemId: id });
 
-    processFile();
-  }, [file]);
-
-  // if (loading)
-  //   return (
-  //     <div className="flex items-center justify-center h-full">
-  //       <Loader className="w-8 h-8 animate-spin" />
-  //     </div>
-  //   );
-  // if (!previewUrl) return null;
+  if (!item.previewUrl) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <NextImage
@@ -57,19 +35,3 @@ export const Image = ({ item }: Props) => {
     />
   );
 };
-
-const convertHeicToJpeg = async (file: File) => {
-  const convertedBlob = await heic2any({
-    blob: file,
-    toType: 'image/jpeg',
-    quality: 0.8,
-  });
-
-  return URL.createObjectURL(convertedBlob as Blob);
-};
-
-const isHeic = (file: File) =>
-  file.type === 'image/heic' ||
-  file.type === 'image/heif' ||
-  file.name.toLowerCase().endsWith('.heic') ||
-  file.name.toLowerCase().endsWith('.heif');

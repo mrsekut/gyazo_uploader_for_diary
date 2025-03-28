@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { itemsAtom } from '@/features/item/atom';
-import { useSelection } from './useSelection';
 
 export const useCopyUrls = () => {
   const [items] = useAtom(itemsAtom);
-  const { selectedIds } = useSelection();
   const [copied, setCopied] = useState(false);
 
-  const copyUrls = async () => {
+  const copyUrls = async (ids: string[]) => {
     try {
       const urls = items
-        .filter(file => selectedIds.includes(file.id))
+        .filter(file => ids.includes(file.id))
         .filter(file => file.gyazoUrl != null)
         .map(file => `[${file.gyazoUrl}]`)
         .join(' ');

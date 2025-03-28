@@ -4,24 +4,14 @@ import { Image } from './Image';
 
 type Props = {
   item: ImageItem;
-  onSelect: (selected: boolean) => void;
-  selected: boolean;
 };
 
-export const ImagePreview = ({ item, onSelect, selected }: Props) => {
+export const ImagePreview = ({ item }: Props) => {
   const captureDate = new Date(item.captureDate).toLocaleString();
   const gyazoUrl = item.gyazoUrl;
 
   return (
-    <Card
-      className={`p-2 h-44 w-48 ${
-        selected ? 'ring-2 ring-blue-500' : ''
-      } cursor-pointer overflow-hidden`}
-      onClick={e => {
-        e.stopPropagation();
-        onSelect(!selected);
-      }}
-    >
+    <Card className="p-2 h-44 w-48 overflow-hidden">
       <div className="flex flex-col gap-2">
         <div className="relative h-32 group">
           <Image item={item} />

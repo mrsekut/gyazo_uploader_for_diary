@@ -1,13 +1,10 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { itemsAtom, addItemAtom } from '@/features/item/atom';
 import exifr from 'exifr';
-import { useSelection } from './useSelection';
 
-// TODO:
+// TODO: ai
 export const useImageViewer = () => {
   const [items] = useAtom(itemsAtom);
-  const { selectedIds, handleSelect, handleGroupSelect, handleResetSelection } =
-    useSelection();
   const addImage = useSetAtom(addItemAtom);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,10 +39,6 @@ export const useImageViewer = () => {
 
   return {
     items,
-    selectedIds,
     handleFileChange,
-    handleSelect,
-    handleGroupSelect,
-    handleResetSelection,
   };
 };

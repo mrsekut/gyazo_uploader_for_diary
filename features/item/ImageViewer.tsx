@@ -1,69 +1,27 @@
 'use client';
 import { useImageViewer } from '@/features/item/useImageViewer';
-import { useCopyUrls } from '@/features/item/useCopyUrls';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ItemList } from '@/features/item/ItemList';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { uploadAtom, uploadingAtom } from './upload/atom';
 
 export const ImageViewer = () => {
-  const {
-    items,
-    selectedIds,
-    handleFileChange,
-    handleSelect,
-    handleGroupSelect,
-    handleResetSelection,
-  } = useImageViewer();
-  const { copyUrls, copied } = useCopyUrls();
-  const uploading = useAtomValue(uploadingAtom);
-  const handleUpload = useSetAtom(uploadAtom);
+  const { items, handleFileChange } = useImageViewer();
 
   return (
     <div className="p-4 space-y-4">
-      <div className="p-4 flex gap-4 sticky top-0 z-50 bg-background pb-4">
-        <Input
-          type="file"
-          className="flex gap-2"
-          multiple
-          accept="image/*,.heic,.heif"
-          onChange={handleFileChange}
-        />
-        <Button
-          onClick={handleUpload}
-          disabled={selectedIds.length === 0 || uploading}
-          variant="outline"
-        >
-          {uploading ? 'Uploading...' : 'Upload to Gyazo'}
-        </Button>
-        <Button
-          onClick={copyUrls}
-          disabled={selectedIds.length === 0}
-          variant="outline"
-        >
-          {copied ? 'Copied!' : 'Copy URLs'}
-        </Button>
-        <Button
-          onClick={handleResetSelection}
-          disabled={selectedIds.length === 0}
-          variant="outline"
-        >
-          Reset Selection
-        </Button>
-      </div>
-
-      <ItemList
-        items={groupByTime(items, 5)}
-        selectedIds={selectedIds}
-        handleSelect={handleSelect}
-        handleGroupSelect={handleGroupSelect}
+      <Input
+        type="file"
+        className="flex gap-2 m-4"
+        multiple
+        accept="image/*,.heic,.heif"
+        onChange={handleFileChange}
       />
+
+      <ItemList items={groupByTime(items, 5)} />
     </div>
   );
 };
 
-const groupByTime = <T extends { captureDate: number; file: { name: string } }>(
+const groupByTime = <T extends { captureDate: number; file: File }>(
   item: T[],
   minute: number,
 ): T[][] => {

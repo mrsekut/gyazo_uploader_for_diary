@@ -11,9 +11,9 @@ export const ImagePreview = ({ item }: Props) => {
   const gyazoUrl = item.gyazoUrl;
 
   return (
-    <Card className="p-2 h-44 w-48 overflow-hidden">
+    <Card className="p-2 h-52 w-56 overflow-hidden">
       <div className="flex flex-col gap-2">
-        <div className="relative h-32 group">
+        <div className="relative h-40 group">
           <Image item={item} />
 
           {/* hover */}

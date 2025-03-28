@@ -23,7 +23,6 @@ export const useImageViewer = () => {
                 exif?.DateTimeOriginal || exif?.CreateDate || file.lastModified;
               addImage({
                 file,
-                previewUrl: reader.result as string,
                 gyazoUrl: null,
                 captureDate: new Date(captureDate).getTime(),
               });
@@ -31,7 +30,6 @@ export const useImageViewer = () => {
             .catch(() => {
               addImage({
                 file,
-                previewUrl: reader.result as string,
                 gyazoUrl: null,
                 captureDate: file.lastModified,
               });

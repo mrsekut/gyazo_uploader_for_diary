@@ -1,23 +1,23 @@
 import NextImage from 'next/image';
-import { ImageId, ImageItem, previewUrlAtom } from './atom';
-import { atomFamily } from 'jotai/utils';
-import { atom, useAtom } from 'jotai';
+import { ImageItem } from './atom';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { Loader } from 'lucide-react';
+import { useEffect } from 'react';
+import { setPreviewUrl, previewUrlAtom } from './previewUrlAtom';
 
 type Props = {
   item: ImageItem;
 };
 
-// TODO: deprecated
-export const loadingAtom = atomFamily((_id: ImageId) => atom(false));
-
 export const Image = ({ item }: Props) => {
-  const { file, id } = item;
+  const previewUrl = useAtomValue(previewUrlAtom(item.id));
 
-  const [, setPreviewUrl] = useAtom(previewUrlAtom);
-  setPreviewUrl({ file, itemId: id });
+  const convert = useSetAtom(setPreviewUrl(item.id));
+  useEffect(() => {
+    convert();
+  }, [convert]);
 
-  if (!item.previewUrl) {
+  if (previewUrl.type === 'loading') {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader className="w-8 h-8 animate-spin" />
@@ -25,10 +25,14 @@ export const Image = ({ item }: Props) => {
     );
   }
 
+  if (previewUrl.type === 'none') {
+    return null;
+  }
+
   return (
     <NextImage
-      src={item.previewUrl}
-      alt={file.name}
+      src={previewUrl.url}
+      alt={item.file.name}
       fill
       className="w-full h-full object-contain"
       unoptimized

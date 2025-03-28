@@ -1,18 +1,17 @@
-import { useState, useCallback } from 'react';
-import { useAtom, useSetAtom } from 'jotai';
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { itemsAtom, addItemAtom, updateItemAtom } from '@/features/item/atom';
 import exifr from 'exifr';
 import { uploadMultipleToGyazo } from '@/app/gyazo';
 import { useSelection } from './useSelection';
+import { selectedIdsAtom } from './select';
+import { loadingAtom } from './Image';
 
 // TODO:
 export const useImageViewer = () => {
   const [items] = useAtom(itemsAtom);
   const { selectedIds, handleSelect, handleGroupSelect, handleResetSelection } =
     useSelection();
-  const [uploading, setUploading] = useState(false);
   const addImage = useSetAtom(addItemAtom);
-  const updateImage = useSetAtom(updateItemAtom);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -46,22 +45,8 @@ export const useImageViewer = () => {
     }
   };
 
-  const handleUpload = useCallback(async () => {
-    setUploading(true);
-    try {
-      const filesToUpload = items.filter(file => selectedIds.includes(file.id));
-      const results = await uploadMultipleToGyazo(filesToUpload);
-
-      results.forEach((result, index) => {
-        const fileId = filesToUpload[index].id;
-        updateImage(fileId, {
-          gyazoUrl: result.permalink_url || null,
-        });
-      });
-    } finally {
-      setUploading(false);
-    }
-  }, [items, selectedIds]);
+  const handleUpload = useSetAtom(uploadAtom);
+  const uploading = useAtomValue(uploadingAtom);
 
   return {
     items,
@@ -74,3 +59,27 @@ export const useImageViewer = () => {
     handleResetSelection,
   };
 };
+
+// TODO:J
+const uploadingAtom = atom(false);
+
+const uploadAtom = atom(null, async (get, set) => {
+  set(uploadingAtom, true);
+
+  try {
+    const items = get(itemsAtom);
+    const selectedIds = get(selectedIdsAtom);
+    const filesToUpload = items.filter(item => selectedIds.includes(item.id));
+    const results = await uploadMultipleToGyazo(filesToUpload);
+
+    results.forEach(result => {
+      set(updateItemAtom, result.imageId, {
+        previewUrl: `https://i.gyazo.com/thumb/3024/${result.image_id}-heic.jpg`,
+        gyazoUrl: result.permalink_url,
+      });
+      set(loadingAtom(result.imageId), false);
+    });
+  } finally {
+    set(uploadingAtom, false);
+  }
+});

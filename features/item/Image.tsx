@@ -2,17 +2,22 @@ import { useState, useEffect } from 'react';
 import NextImage from 'next/image';
 import heic2any from 'heic2any';
 import { Loader } from 'lucide-react';
-import { ImageItem } from './atom';
+import { ImageId, ImageItem } from './atom';
+import { atomFamily } from 'jotai/utils';
+import { atom, useAtom } from 'jotai';
 
 type Props = {
   item: ImageItem;
 };
 
+export const loadingAtom = atomFamily((_id: ImageId) => atom(false));
+
 export const Image = ({ item }: Props) => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useAtom(loadingAtom(item.id));
   const { file } = item;
 
+  // TODO: atom上でやる, worker
   useEffect(() => {
     const processFile = async () => {
       if (isHeic(file)) {
@@ -34,17 +39,17 @@ export const Image = ({ item }: Props) => {
     processFile();
   }, [file]);
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader className="w-8 h-8 animate-spin" />
-      </div>
-    );
-  if (!previewUrl) return null;
+  // if (loading)
+  //   return (
+  //     <div className="flex items-center justify-center h-full">
+  //       <Loader className="w-8 h-8 animate-spin" />
+  //     </div>
+  //   );
+  // if (!previewUrl) return null;
 
   return (
     <NextImage
-      src={previewUrl}
+      src={item.previewUrl}
       alt={file.name}
       fill
       className="w-full h-full object-contain"

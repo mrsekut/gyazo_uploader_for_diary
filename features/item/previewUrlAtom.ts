@@ -19,12 +19,29 @@ const processQueue = async () => {
 
 type Stauts =
   | { type: 'loading' }
-  | { type: 'loaded'; url: string } // preview or gyazo
+  | { type: 'loaded'; url: string; isBlobUrl?: boolean } // preview or gyazo
   | { type: 'none'; url: null };
 
-export const previewUrlAtom = atomFamily((_id: ImageId) =>
+const _previewUrlAtomFamily = atomFamily((_id: ImageId) =>
   atom<Stauts>({ type: 'loading' }),
 );
+
+export const previewUrlAtom = atomFamily((id: ImageId) => {
+  const baseAtom = _previewUrlAtomFamily(id);
+  return atom(
+    (get) => get(baseAtom),
+    (get, set, newValue: Stauts) => {
+      const current = get(baseAtom);
+
+      // Revoke old blob URL before updating
+      if (current.type === 'loaded' && current.isBlobUrl && current.url) {
+        URL.revokeObjectURL(current.url);
+      }
+
+      set(baseAtom, newValue);
+    }
+  );
+});
 
 export const setPreviewUrl = atomFamily((id: ImageId) =>
   atom(null, async (get, set) => {
@@ -37,7 +54,7 @@ export const setPreviewUrl = atomFamily((id: ImageId) =>
         conversionQueue.push(async () => {
           try {
             const url = await convertHeicToJpeg(item.file);
-            set(previewUrlAtom(id), { type: 'loaded', url });
+            set(previewUrlAtom(id), { type: 'loaded', url, isBlobUrl: true });
           } catch (error) {
             console.error('HEIC conversion failed:', error);
             set(previewUrlAtom(id), { type: 'none', url: null });
@@ -46,7 +63,7 @@ export const setPreviewUrl = atomFamily((id: ImageId) =>
         processQueue();
       } else {
         const url = URL.createObjectURL(item.file);
-        set(previewUrlAtom(id), { type: 'loaded', url });
+        set(previewUrlAtom(id), { type: 'loaded', url, isBlobUrl: true });
       }
     } catch (error) {
       console.error('Image processing failed:', error);

@@ -16,6 +16,7 @@ export const uploadAtom = atom(null, async (get, set, ids: string[]) => {
       set(previewUrlAtom(result.imageId), {
         type: 'loaded',
         url: `https://i.gyazo.com/thumb/3024/${result.image_id}-heic.jpg`,
+        isBlobUrl: false, // Gyazo URL, not a blob URL
       });
     });
   } finally {

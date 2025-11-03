@@ -2,9 +2,6 @@ import { ImagePreview } from '@/features/item/ImagePreview';
 import { ImageItem } from '@/features/item/atom';
 import { Button } from '@/components/ui/button';
 import { useCopyUrls } from './useCopyUrls';
-import { useSetAtom } from 'jotai';
-import { uploadAtom } from './upload/atom';
-import { useState } from 'react';
 
 type Props = {
   group: ImageItem[];
@@ -12,23 +9,20 @@ type Props = {
 
 export const ItemGroup = ({ group }: Props) => {
   const { copyUrls, copied } = useCopyUrls();
-  const onUpload = useSetAtom(uploadAtom);
-  const [uploading, setUploading] = useState(false);
-  const uploaded = group.some(item => item.gyazoUrl);
 
-  const handleUpload = async () => {
-    setUploading(true);
-    try {
-      await onUpload(group.map(item => item.id));
-    } finally {
-      setUploading(false);
-    }
-  };
+  // Calculate group status
+  const uploadedCount = group.filter(item => item.status === 'uploaded').length;
+  const uploadingCount = group.filter(
+    item => item.status === 'uploading',
+  ).length;
+  const failedCount = group.filter(item => item.status === 'failed').length;
+  const totalCount = group.length;
+  const allUploaded = uploadedCount === totalCount;
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-2">
-        {uploaded ? (
+      <div className="flex gap-2 items-center">
+        {allUploaded ? (
           <Button
             size="sm"
             variant="outline"
@@ -37,14 +31,12 @@ export const ItemGroup = ({ group }: Props) => {
             {copied ? 'Copied!' : 'Copy URLs'}
           </Button>
         ) : (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleUpload}
-            disabled={uploading}
-          >
-            {uploading ? 'Uploading...' : 'Upload'}
-          </Button>
+          <div className="text-sm text-gray-500">
+            Uploading: {uploadedCount}/{totalCount}
+            {failedCount > 0 && (
+              <span className="text-red-500 ml-2">({failedCount} failed)</span>
+            )}
+          </div>
         )}
       </div>
       <div className="flex flex-row gap-2 flex-wrap p-2">

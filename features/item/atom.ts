@@ -5,11 +5,16 @@ import { nonNullableAtom } from '@/utils/nonNullableAtom';
 
 export type ImageId = string;
 
+export type UploadStatus = 'uploading' | 'uploaded' | 'failed';
+
 export type ImageItem = {
   id: ImageId;
   file: File;
   gyazoUrl: string | null;
+  gyazoImageId: string | null;
   captureDate: number;
+  status: UploadStatus;
+  error?: string;
 };
 
 export const itemIdsAtom = atom<ImageId[]>([]);
@@ -27,9 +32,10 @@ export const itemsAtom = atom(get => {
 
 export const addItemAtom = atom(
   null,
-  (_get, set, item: Omit<ImageItem, 'id'>) => {
+  (_get, set, item: Omit<ImageItem, 'id'>): string => {
     const id = nanoid();
     set(itemIdsAtom, ids => [...ids, id]);
     set(itemAtom(id), { ...item, id });
+    return id;
   },
 );

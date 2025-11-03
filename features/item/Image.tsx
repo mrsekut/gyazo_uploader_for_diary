@@ -1,23 +1,14 @@
 import NextImage from 'next/image';
 import { ImageItem } from './atom';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { Loader } from 'lucide-react';
-import { useEffect } from 'react';
-import { setPreviewUrl, previewUrlAtom } from './previewUrlAtom';
+import { Loader, AlertCircle } from 'lucide-react';
 
 type Props = {
   item: ImageItem;
 };
 
 export const Image = ({ item }: Props) => {
-  const previewUrl = useAtomValue(previewUrlAtom(item.id));
-
-  const convert = useSetAtom(setPreviewUrl(item.id));
-  useEffect(() => {
-    convert();
-  }, [convert]);
-
-  if (previewUrl.type === 'loading') {
+  // Show loading state while uploading
+  if (item.status === 'uploading') {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader className="w-8 h-8 animate-spin" />
@@ -25,17 +16,29 @@ export const Image = ({ item }: Props) => {
     );
   }
 
-  if (previewUrl.type === 'none') {
-    return null;
+  // Show error state if upload failed
+  if (item.status === 'failed') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-2 text-red-500">
+        <AlertCircle className="w-8 h-8" />
+        <span className="text-xs">{item.error || 'Upload failed'}</span>
+      </div>
+    );
   }
 
-  return (
-    <NextImage
-      src={previewUrl.url}
-      alt={item.file.name}
-      fill
-      className="w-full h-full object-contain"
-      unoptimized
-    />
-  );
+  // Show Gyazo image if uploaded
+  if (item.status === 'uploaded' && item.gyazoImageId) {
+    return (
+      <NextImage
+        src={`https://i.gyazo.com/thumb/3024/${item.gyazoImageId}-heic.jpg`}
+        alt={item.file.name}
+        fill
+        className="w-full h-full object-contain"
+        unoptimized
+      />
+    );
+  }
+
+  // Fallback
+  return null;
 };

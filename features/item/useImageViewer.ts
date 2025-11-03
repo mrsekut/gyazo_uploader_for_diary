@@ -1,11 +1,13 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { itemsAtom, addItemAtom } from '@/features/item/atom';
+import { autoUploadAtom } from '@/features/item/upload/atom';
 import exifr from 'exifr';
 
 // TODO: ai
 export const useImageViewer = () => {
   const [items] = useAtom(itemsAtom);
   const addImage = useSetAtom(addItemAtom);
+  const autoUpload = useSetAtom(autoUploadAtom);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -18,18 +20,27 @@ export const useImageViewer = () => {
             .then(exif => {
               const captureDate =
                 exif?.DateTimeOriginal || exif?.CreateDate || file.lastModified;
-              addImage({
+              const item = {
                 file,
                 gyazoUrl: null,
+                gyazoImageId: null,
                 captureDate: new Date(captureDate).getTime(),
-              });
+                status: 'uploading' as const,
+              };
+              const id = addImage(item);
+              // Start auto upload immediately after adding
+              autoUpload(id);
             })
             .catch(() => {
-              addImage({
+              const item = {
                 file,
                 gyazoUrl: null,
+                gyazoImageId: null,
                 captureDate: file.lastModified,
-              });
+                status: 'uploading' as const,
+              };
+              const id = addImage(item);
+              autoUpload(id);
             });
         };
         reader.readAsDataURL(file);

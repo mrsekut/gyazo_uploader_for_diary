@@ -1,5 +1,4 @@
 import { atom } from 'jotai';
-import heic2any from 'heic2any';
 import { atomFamily } from 'jotai/utils';
 import { ImageId, itemAtom } from './atom';
 
@@ -39,6 +38,7 @@ const isHeic = (file: File) =>
   file.name.toLowerCase().endsWith('.heif');
 
 const convertHeicToJpeg = async (file: File) => {
+  const heic2any = (await import('heic2any')).default;
   const convertedBlob = await heic2any({
     blob: file,
     toType: 'image/jpeg',
@@ -47,3 +47,4 @@ const convertHeicToJpeg = async (file: File) => {
 
   return URL.createObjectURL(convertedBlob as Blob);
 };
+

@@ -2,6 +2,21 @@ import { atom } from 'jotai';
 import { atomFamily } from 'jotai/utils';
 import { ImageId, itemAtom } from './atom';
 
+// Conversion queue to process HEIC files one by one
+const conversionQueue: Array<() => Promise<void>> = [];
+let isProcessing = false;
+
+const processQueue = async () => {
+  if (isProcessing || conversionQueue.length === 0) return;
+
+  isProcessing = true;
+  while (conversionQueue.length > 0) {
+    const task = conversionQueue.shift();
+    if (task) await task();
+  }
+  isProcessing = false;
+};
+
 type Stauts =
   | { type: 'loading' }
   | { type: 'loaded'; url: string } // preview or gyazo
@@ -18,8 +33,17 @@ export const setPreviewUrl = atomFamily((id: ImageId) =>
 
     try {
       if (isHeic(item.file)) {
-        const url = await convertHeicToJpeg(item.file);
-        set(previewUrlAtom(id), { type: 'loaded', url });
+        // Queue HEIC conversion to process one by one
+        conversionQueue.push(async () => {
+          try {
+            const url = await convertHeicToJpeg(item.file);
+            set(previewUrlAtom(id), { type: 'loaded', url });
+          } catch (error) {
+            console.error('HEIC conversion failed:', error);
+            set(previewUrlAtom(id), { type: 'none', url: null });
+          }
+        });
+        processQueue();
       } else {
         const url = URL.createObjectURL(item.file);
         set(previewUrlAtom(id), { type: 'loaded', url });
@@ -31,7 +55,7 @@ export const setPreviewUrl = atomFamily((id: ImageId) =>
   }),
 );
 
-const isHeic = (file: File) =>
+export const isHeic = (file: File) =>
   file.type === 'image/heic' ||
   file.type === 'image/heif' ||
   file.name.toLowerCase().endsWith('.heic') ||
@@ -47,4 +71,3 @@ const convertHeicToJpeg = async (file: File) => {
 
   return URL.createObjectURL(convertedBlob as Blob);
 };
-

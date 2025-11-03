@@ -1,54 +1,53 @@
 import { atom } from 'jotai';
-import { itemAtom } from '@/features/item/atom';
+import { itemAtom, itemsAtom } from '@/features/item/atom';
 import { uploadToGyazo } from '@/features/item/upload/gyazo';
-import { uploadFiles } from '@/features/item/upload/uploader';
+import { UploadQueue } from './UploadQueue';
+import { groupByTime, calculateGroupPriority } from '../grouping';
 
-// Manual upload atom (legacy, for backward compatibility)
-// Note: This is no longer needed with auto-upload, but kept for compatibility
-export const uploadAtom = atom(null, async (get, set, ids: string[]) => {
-  try {
-    const items = ids.map(id => get(itemAtom(id)));
+// Create a singleton upload queue instance with 3 concurrent uploads
+const uploadQueue = new UploadQueue(uploadToGyazo, 3);
 
-    // Use the new uploader with uploadToGyazo as the upload function
-    const requests = items.map(item => ({ id: item.id, file: item.file }));
-    const results = await uploadFiles(requests, uploadToGyazo);
+// Auto upload atom - automatically uploads file on add with priority queue
+export const autoUploadAtom = atom(
+  null,
+  (get, set, payload: { id: string; priority?: number }) => {
+    const { id, priority = 0 } = payload;
+    const item = get(itemAtom(id));
 
-    results.forEach(result => {
-      set(itemAtom(result.id), item => ({
-        ...item,
-        status: 'uploaded',
-        gyazoUrl: result.permalinkUrl,
-        gyazoImageId: result.imageId,
-      }));
+    // Set status to uploading
+    set(itemAtom(id), { ...item, status: 'uploading' });
+
+    // Enqueue with priority
+    uploadQueue.enqueue({ id: item.id, file: item.file }, priority, {
+      onProgress: status => {
+        set(itemAtom(id), currentItem => ({
+          ...currentItem,
+          status,
+        }));
+      },
+      onComplete: result => {
+        set(itemAtom(id), currentItem => ({
+          ...currentItem,
+          status: 'uploaded',
+          gyazoUrl: result.permalinkUrl,
+          gyazoImageId: result.imageId,
+        }));
+      },
+      onError: error => {
+        set(itemAtom(id), currentItem => ({
+          ...currentItem,
+          status: 'failed',
+          error: error.message || 'Upload failed',
+        }));
+      },
     });
-  } finally {
-    //
-  }
-});
+  },
+);
 
-// Auto upload atom - automatically uploads file on add
-export const autoUploadAtom = atom(null, async (get, set, id: string) => {
-  const item = get(itemAtom(id));
-
-  // Set status to uploading
-  set(itemAtom(id), { ...item, status: 'uploading' });
-
-  try {
-    const result = await uploadToGyazo(id, item.file);
-
-    // Update with success
-    set(itemAtom(id), currentItem => ({
-      ...currentItem,
-      status: 'uploaded',
-      gyazoUrl: result.permalinkUrl,
-      gyazoImageId: result.imageId,
-    }));
-  } catch (error) {
-    // Update with error
-    set(itemAtom(id), currentItem => ({
-      ...currentItem,
-      status: 'failed',
-      error: error instanceof Error ? error.message : 'Upload failed',
-    }));
-  }
+// Calculate priority for an item based on its group
+export const calculateItemPriorityAtom = atom(null, (get, _set, id: string) => {
+  const allItems = get(itemsAtom);
+  const groups = groupByTime(allItems, 5);
+  const priorityMap = calculateGroupPriority(groups);
+  return priorityMap.get(id) ?? 999; // Default to low priority if not found
 });

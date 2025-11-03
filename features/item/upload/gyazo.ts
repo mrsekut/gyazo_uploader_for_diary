@@ -1,5 +1,5 @@
 'use server';
-import { ImageId, ImageItem } from '@/features/item/atom';
+import { ImageId } from '@/features/item/atom';
 import { GYAZO_CONFIG } from './config';
 import type { UploadResult } from './types';
 
@@ -9,18 +9,6 @@ type GyazoUploadResponse = {
   permalink_url: string;
   thumb_url: string;
   url: string;
-};
-
-/**
- * Upload multiple files to Gyazo (legacy function, kept for backward compatibility)
- * @deprecated Use uploadToGyazo with uploader.ts functions instead
- */
-export const uploadMultipleToGyazo = async (
-  items: ImageItem[],
-): Promise<GyazoUploadResponse[]> => {
-  return Promise.all(
-    items.map(item => uploadToGyazoLegacy(item.id, item.file)),
-  );
 };
 
 /**

@@ -1,13 +1,16 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { itemsAtom, addItemAtom } from '@/features/item/atom';
-import { autoUploadAtom } from '@/features/item/upload/atom';
+import {
+  autoUploadAtom,
+  calculateItemPriorityAtom,
+} from '@/features/item/upload/atom';
 import exifr from 'exifr';
 
-// TODO: ai
 export const useImageViewer = () => {
   const [items] = useAtom(itemsAtom);
   const addImage = useSetAtom(addItemAtom);
   const autoUpload = useSetAtom(autoUploadAtom);
+  const calculatePriority = useSetAtom(calculateItemPriorityAtom);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -28,8 +31,9 @@ export const useImageViewer = () => {
                 status: 'uploading' as const,
               };
               const id = addImage(item);
-              // Start auto upload immediately after adding
-              autoUpload(id);
+              // Calculate priority based on group and start auto upload
+              const priority = calculatePriority(id);
+              autoUpload({ id, priority });
             })
             .catch(() => {
               const item = {
@@ -40,7 +44,8 @@ export const useImageViewer = () => {
                 status: 'uploading' as const,
               };
               const id = addImage(item);
-              autoUpload(id);
+              const priority = calculatePriority(id);
+              autoUpload({ id, priority });
             });
         };
         reader.readAsDataURL(file);

@@ -12,9 +12,6 @@ export const ItemGroup = ({ group }: Props) => {
 
   // Calculate group status
   const uploadedCount = group.filter(item => item.status === 'uploaded').length;
-  const uploadingCount = group.filter(
-    item => item.status === 'uploading',
-  ).length;
   const failedCount = group.filter(item => item.status === 'failed').length;
   const totalCount = group.length;
   const allUploaded = uploadedCount === totalCount;

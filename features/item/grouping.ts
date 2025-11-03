@@ -52,14 +52,3 @@ export function calculateGroupPriority<
 
   return priorityMap;
 }
-
-/**
- * Get the earliest capture date in a group
- * @param group - Array of items with captureDate
- * @returns Earliest capture date timestamp
- */
-export function getGroupEarliestDate<T extends { captureDate: number }>(
-  group: T[],
-): number {
-  return Math.min(...group.map(item => item.captureDate));
-}
